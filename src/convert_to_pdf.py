@@ -27,7 +27,6 @@ def convert_to_pdf(filename, namespace):
     os.makedirs(f'/{processed_pdf_dir}', exist_ok=True)
     result = subprocess.run(
         [
-            # libreoffice --headless --convert-to pdf --outdir myDir 'sample_docx_document.docx'
             "libreoffice",
             "--headless",
             "--convert-to",
