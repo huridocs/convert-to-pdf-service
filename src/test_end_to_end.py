@@ -9,7 +9,7 @@ import pdfplumber
 import requests
 from rsmq import RedisSMQ
 
-from ExtractionMessage import ExtractionMessage
+from Message import Message
 from Params import Params
 from Task import Task
 from ServiceConfig import ServiceConfig
@@ -64,18 +64,18 @@ class TestEndToEnd(TestCase):
 
         queue.sendMessage().message(task.json()).execute()
 
-        extraction_message = self.get_redis_message()
+        message = self.get_redis_message()
 
-        self.assertEqual(namespace, extraction_message.tenant)
-        self.assertEqual("README.md", extraction_message.params.filename)
-        self.assertEqual(False, extraction_message.success)
+        self.assertEqual(namespace, message.tenant)
+        self.assertEqual("README.md", message.params.filename)
+        self.assertEqual(False, message.success)
         self.assertTrue(
             os.path.exists(
-                f'{config.paths["failed_documents"]}/{extraction_message.tenant}/{extraction_message.params.filename}'
+                f'{config.paths["failed_documents"]}/{message.tenant}/{message.params.filename}'
             )
         )
 
-    def sync_ocr(self, pdf_file_name, language=None) -> ExtractionMessage:
+    def sync_ocr(self, pdf_file_name, language=None) -> Message:
         service_url = "http://127.0.0.1:5050"
         data = {"language": language}
 
@@ -89,7 +89,7 @@ class TestEndToEnd(TestCase):
             first_page = pdf.pages[0]
             return first_page.extract_text()
 
-    def async_ocr(self, pdf_file_name, language="en") -> ExtractionMessage:
+    def async_ocr(self, pdf_file_name, language="en") -> Message:
         namespace = "async_ocr"
         service_url = "http://127.0.0.1:5050"
 
@@ -110,18 +110,18 @@ class TestEndToEnd(TestCase):
         )
         queue.sendMessage().message(str(task.json())).execute()
 
-        extraction_message = self.get_redis_message()
+        message = self.get_redis_message()
 
-        response = requests.get(extraction_message.file_url)
+        response = requests.get(message.file_url)
         self.assertEqual(200, response.status_code)
-        self.assertEqual(task.params, extraction_message.params)
+        self.assertEqual(task.params, message.params)
 
         with pdfplumber.open(io.BytesIO(response.content)) as pdf:
             first_page = pdf.pages[0]
             return first_page.extract_text()
 
     @staticmethod
-    def get_redis_message() -> ExtractionMessage:
+    def get_redis_message() -> Message:
         queue = RedisSMQ(host="127.0.0.1", port="6379", qname="ocr_results", quiet=True)
 
         for i in range(50):
@@ -129,4 +129,4 @@ class TestEndToEnd(TestCase):
             message = queue.receiveMessage().exceptions(False).execute()
             if message:
                 queue.deleteMessage(id=message["id"]).execute()
-                return ExtractionMessage(**json.loads(message["message"]))
+                return Message(**json.loads(message["message"]))

@@ -13,7 +13,7 @@ from ServiceConfig import ServiceConfig
 from DocumentFile import DocumentFile
 
 config = ServiceConfig()
-logger = config.get_logger("convert_to_pdf_api")
+logger = config.get_logger("api")
 
 app = FastAPI()
 
@@ -50,24 +50,6 @@ async def error():
     raise HTTPException(
         status_code=500, detail=message
     )
-
-
-# @app.post("/")
-# async def convert_to_pdf_sync(
-#     file: UploadFile = File(...)
-# ):
-#     filename = "No file name"
-#     try:
-#         namespace = "sync_convert"
-#         filename = file.filename
-#         document_file = DocumentFile(namespace)
-#         document_file.save(document_file_name=filename, file=file.file.read())
-#         processed_pdf_filepath = convert_to_pdf(filename, namespace)
-#         return FileResponse(path=processed_pdf_filepath, media_type="application/pdf")
-#     except Exception:
-#         message = f"Error processing {filename}"
-#         logger.error(message, exc_info=1)
-#         raise HTTPException(status_code=422, detail=message)
 
 
 @app.post("/upload/{namespace}", status_code=HTTP_202_ACCEPTED)

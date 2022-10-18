@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from Params import Params
 
 
-class ExtractionMessage(BaseModel):
+class Message(BaseModel):
     tenant: str
     task: str
     params: Params

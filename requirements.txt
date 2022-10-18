@@ -1,18 +1,8 @@
-graypy~=2.1.0
 redis~=3.5.3
 pydantic~=1.8.2
 PyRSMQ
-
-aiofiles==0.6.0
-fastapi~=0.67.0
-gunicorn
-python-multipart
-PyYAML~=5.4.1
-requests~=2.26.0
-uvicorn
-
-flake8
 sentry-sdk
 
-pdfplumber
-black
+graypy~=2.1.0
+
+flake8

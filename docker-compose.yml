@@ -15,38 +15,37 @@ services:
       - SERVICE_HOST=${SERVICE_HOST:-http://127.0.0.1}
       - SERVICE_PORT=${SERVICE_PORT:-5060}
 
-  # service:
-  #   restart: unless-stopped
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #     target: service
-  #     args:
-  #       - VERSION=0.2.0
-  #       - BUILD_DATE=2022-10-14
-  #   volumes:
-  #     - ./config:/config
-  #     - ./data:/app/data
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Europe/London
-  #     - S6_KEEP_ENV=1
-  #     - ENVIRONMENT=${ENVIRONMENT:-production}
-  #     - SENTRY_PDF_CONVERT_DSN=${SENTRY_PDF_CONVERT_DSN:-}
-  #     - REDIS_HOST=${REDIS_HOST:-host.docker.internal}
-  #     - REDIS_PORT=${REDIS_PORT:-6379}
-  #     - SERVICE_HOST=${SERVICE_HOST:-http://127.0.0.1}
-  #     - SERVICE_PORT=${SERVICE_PORT:-5060}
-  #   extra_hosts:
-  #     - "host.docker.internal:host-gateway"
+  service:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: service
+      args:
+        - VERSION=0.2.0
+        - BUILD_DATE=2022-10-14
+    volumes:
+      - ./config:/config
+      - ./data:/app/data
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - S6_KEEP_ENV=1
+      - SENTRY_PDF_CONVERT_DSN=${SENTRY_PDF_CONVERT_DSN:-}
+      - REDIS_HOST=${REDIS_HOST:-host.docker.internal}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - SERVICE_HOST=${SERVICE_HOST:-http://127.0.0.1}
+      - SERVICE_PORT=${SERVICE_PORT:-5060}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
-  # redis:
-  #   image: "redis:5.0.14"
-  #   network_mode: host
-  #   restart: unless-stopped
-  #   command: redis-server
-  #   environment:
-  #     - REDIS_REPLICATION_MODE=master
-  #   profiles:
-  #     - testing
+  redis:
+    image: "redis:5.0.14"
+    network_mode: host
+    restart: unless-stopped
+    command: redis-server
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    profiles:
+      - testing
