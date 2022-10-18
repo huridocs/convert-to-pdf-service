@@ -95,7 +95,6 @@ async def processed_pdf(namespace: str, pdf_file_name: str, background_tasks: Ba
             media_type="application/pdf",
             filename=pdf_file_name,
         )
-
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Processed PDF not found")
     except Exception:
