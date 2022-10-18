@@ -86,7 +86,7 @@ async def upload_document(namespace, file: UploadFile = File(...)):
 
 @app.get("/processed_pdf/{namespace}/{pdf_file_name}", response_class=FileResponse)
 async def processed_pdf(namespace: str, pdf_file_name: str, background_tasks: BackgroundTasks):
-    # try:
+    try:
         file_path = f'{config.paths["processed_pdfs"]}/{namespace}/{pdf_file_name}'
         os.stat(file_path)
         background_tasks.add_task(os.remove, path=file_path)
@@ -96,8 +96,8 @@ async def processed_pdf(namespace: str, pdf_file_name: str, background_tasks: Ba
             filename=pdf_file_name,
         )
 
-    # except FileNotFoundError:
-    #     raise HTTPException(status_code=404, detail="Processed PDF not found")
-    # except Exception:
-    #     logger.error("Error", exc_info=1)
-    #     raise HTTPException(status_code=422)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Processed PDF not found")
+    except Exception:
+        logger.error("Error", exc_info=1)
+        raise HTTPException(status_code=422)
