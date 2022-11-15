@@ -9,10 +9,10 @@ import pdfplumber
 import requests
 from rsmq import RedisSMQ
 
-from Message import Message
-from Params import Params
-from Task import Task
-from ServiceConfig import ServiceConfig
+from worker.Message import Message
+from worker.Params import Params
+from worker.Task import Task
+from worker.ServiceConfig import ServiceConfig
 
 config = ServiceConfig()
 

@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: DockerfileAPI
+      dockerfile: api.Dockerfile
       target: api
     volumes:
       - ./data:/app/data
@@ -15,11 +15,11 @@ services:
       - SERVICE_HOST=${SERVICE_HOST:-http://127.0.0.1}
       - SERVICE_PORT=${SERVICE_PORT:-5060}
 
-  service:
+  worker:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: worker.Dockerfile
       target: service
       args:
         - VERSION=0.2.0
