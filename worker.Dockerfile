@@ -53,6 +53,6 @@ COPY ./src/worker ./src
 # ports and volumes
 VOLUME /config
 
-FROM base AS service
+FROM base AS worker
 WORKDIR /app/src
 CMD python QueueProcessor.py
