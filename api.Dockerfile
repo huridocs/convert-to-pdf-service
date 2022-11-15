@@ -15,6 +15,8 @@ WORKDIR /app
 COPY ./src/api ./src
 
 FROM base AS api
+RUN addgroup -S python && adduser -S python -G python
+USER python
 WORKDIR /app/src
 ENV FLASK_APP app.py
 CMD gunicorn -k uvicorn.workers.UvicornWorker app:app --bind 0.0.0.0:5050
