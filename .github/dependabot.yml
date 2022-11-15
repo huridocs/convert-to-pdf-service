@@ -19,10 +19,6 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "docker"
-    directory: "/src/api"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "docker"
-    directory: "/src/worker"
+    directory: "/"
     schedule:
       interval: "daily"
