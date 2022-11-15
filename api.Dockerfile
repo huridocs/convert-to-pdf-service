@@ -1,18 +1,18 @@
-FROM python:3.9-slim-bullseye AS base
+FROM python:3.9-alpine AS base
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY requirementsAPI.txt requirementsAPI.txt
+COPY src/api/requirements/base.txt base.txt
 RUN pip install --upgrade pip
-RUN pip install -r requirementsAPI.txt
+RUN pip install -r base.txt
 
 RUN mkdir /app
 RUN mkdir /app/src
 RUN mkdir /data
 WORKDIR /app
-COPY ./src ./src
+COPY ./src/api ./src
 
 FROM base AS api
 WORKDIR /app/src

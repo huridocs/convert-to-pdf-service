@@ -13,9 +13,9 @@ RUN apk --update add python3 py3-pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN echo "**** install requirements ****"
-COPY requirements.txt requirements.txt
+COPY src/worker/requirements/base.txt base.txt
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install -r base.txt
 
 # Original Libreoffice script
 RUN \
@@ -48,7 +48,7 @@ RUN mkdir -p /app
 RUN mkdir -p /app/src
 RUN mkdir -p /data
 WORKDIR /app
-COPY ./src ./src
+COPY ./src/worker ./src
 
 # ports and volumes
 VOLUME /config

@@ -4,7 +4,7 @@ services:
     network_mode: bridge
     ports:
       - 5050:5050
-  ocr:
+  worker:
     network_mode: bridge
   redis:
     network_mode: bridge
