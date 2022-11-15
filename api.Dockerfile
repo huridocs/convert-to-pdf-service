@@ -1,4 +1,4 @@
-FROM python:3.9-alpine AS base
+FROM python:3.10.8-alpine AS base
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV
