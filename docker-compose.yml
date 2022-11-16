@@ -31,7 +31,7 @@ services:
       - TZ=Europe/London
       - S6_KEEP_ENV=1
       - SENTRY_PDF_CONVERT_DSN=${SENTRY_PDF_CONVERT_DSN:-}
-      - REDIS_HOST=${REDIS_HOST:-host.docker.internal}
+      - REDIS_HOST=${REDIS_HOST:-127.0.0.1}
       - REDIS_PORT=${REDIS_PORT:-6379}
       - SERVICE_HOST=${SERVICE_HOST:-http://127.0.0.1}
       - SERVICE_PORT=${SERVICE_PORT:-5060}

@@ -33,7 +33,7 @@ function check_format {
 
 function test {
   _source_venv
-  python -m unittest discover -s src
+  python -m unittest discover -s tests
 }
 
 function linter {
