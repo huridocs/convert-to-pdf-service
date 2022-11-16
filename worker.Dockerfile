@@ -1,4 +1,3 @@
-#FROM lsiobase/rdesktop-web:alpine AS base
 FROM linuxserver/libreoffice:7.2.7 AS base
 RUN apk --update add py3-pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
