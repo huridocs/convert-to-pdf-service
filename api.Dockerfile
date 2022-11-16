@@ -1,4 +1,4 @@
-FROM python:3.9-alpine AS base
+FROM python:3.10.8-alpine AS base
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV
@@ -15,6 +15,8 @@ WORKDIR /app
 COPY ./src/api ./src
 
 FROM base AS api
+RUN addgroup -S python && adduser -S python -G python
+USER python
 WORKDIR /app/src
 ENV FLASK_APP app.py
 CMD gunicorn -k uvicorn.workers.UvicornWorker app:app --bind 0.0.0.0:5050

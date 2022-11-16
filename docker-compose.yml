@@ -5,7 +5,6 @@ services:
     build:
       context: .
       dockerfile: api.Dockerfile
-      target: api
     volumes:
       - ./data:/app/data
     ports:
@@ -20,7 +19,6 @@ services:
     build:
       context: .
       dockerfile: worker.Dockerfile
-      target: service
       args:
         - VERSION=0.2.0
         - BUILD_DATE=2022-10-14
