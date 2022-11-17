@@ -43,7 +43,6 @@ class EndToEnd(unittest.TestCase):
         self.assertIsNotNone(pdf)
         self.assertIn('Lorem ipsum', text)
 
-
     @staticmethod
     def get_redis_message():
         queue = RedisSMQ(host="127.0.0.1", port="6379", qname="convert-to-pdf_results", quiet=True)
@@ -54,7 +53,6 @@ class EndToEnd(unittest.TestCase):
             if message:
                 queue.deleteMessage(id=message["id"]).execute()
                 return json.loads(message["message"])
-
 
 
 if __name__ == '__main__':

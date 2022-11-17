@@ -1,5 +1,4 @@
 import os
-from time import sleep
 
 import redis
 from pydantic import ValidationError
@@ -87,9 +86,7 @@ class QueueProcessor:
             qname=self.config.tasks_queue_name,
         )
 
-        tasks_queue.createQueue().vt(120).exceptions(
-            False
-        ).execute()
+        tasks_queue.createQueue().vt(120).exceptions(False).execute()
 
         self.logger.info(
             f"Connecting to Redis: {self.config.redis_host}:{self.config.redis_port}"
@@ -101,9 +98,7 @@ class QueueProcessor:
                 host=self.config.redis_host,
                 port=self.config.redis_port,
             )
-            self.logger.info(
-                f"Connected to Redis."
-            )
+            self.logger.info("Connected to Redis.")
             redis_smq_consumer.run()
         except redis.exceptions.ConnectionError:
             self.logger.error(
