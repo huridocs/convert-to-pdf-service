@@ -47,6 +47,8 @@ services:
     command: redis-server
     networks:
       - convert-to-pdf
+    ports:
+      - 6379:6379
     environment:
       - REDIS_REPLICATION_MODE=master
     profiles:
