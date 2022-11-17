@@ -42,7 +42,6 @@ services:
 
   redis:
     image: "redis:5.0.14"
-    network_mode: host
     restart: unless-stopped
     command: redis-server
     networks:
