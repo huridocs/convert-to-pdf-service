@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: api.Dockerfile
+    networks:
+      - convert-to-pdf
     volumes:
       - ./data:/app/data
     ports:
@@ -22,6 +24,8 @@ services:
       args:
         - VERSION=0.2.0
         - BUILD_DATE=2022-10-14
+    networks:
+      - convert-to-pdf
     volumes:
       - ./config:/config
       - ./data:/app/data
@@ -31,19 +35,20 @@ services:
       - TZ=Europe/London
       - S6_KEEP_ENV=1
       - SENTRY_PDF_CONVERT_DSN=${SENTRY_PDF_CONVERT_DSN:-}
-      - REDIS_HOST=${REDIS_HOST:-127.0.0.1}
+      - REDIS_HOST=${REDIS_HOST:-redis}
       - REDIS_PORT=${REDIS_PORT:-6379}
-      - SERVICE_HOST=${SERVICE_HOST:-http://127.0.0.1}
-      - SERVICE_PORT=${SERVICE_PORT:-5060}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   redis:
     image: "redis:5.0.14"
     network_mode: host
     restart: unless-stopped
     command: redis-server
+    networks:
+      - convert-to-pdf
     environment:
       - REDIS_REPLICATION_MODE=master
     profiles:
       - testing
+
+networks:
+  convert-to-pdf:
