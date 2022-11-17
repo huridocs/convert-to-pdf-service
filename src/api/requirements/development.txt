@@ -1,4 +1,0 @@
--r base.txt
-
-flake8==5.0.4
-requests==2.28.1

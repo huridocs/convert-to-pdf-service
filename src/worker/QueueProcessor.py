@@ -36,9 +36,12 @@ class QueueProcessor:
         self.logger.info(f"Valid message: {message}")
 
         try:
+            self.logger.info(f"Converting to PDF {task.params.filename}")
             processed_pdf_filepath = convert_to_pdf(
                 task.params.filename, task.params.namespace
             )
+
+            self.logger.info(f"Converted to PDF {task.params.filename}")
 
             if not processed_pdf_filepath:
                 message = Message(
@@ -48,6 +51,7 @@ class QueueProcessor:
                     success=False,
                     error_message="Error during pdf convert",
                 )
+                self.logger.error(f"Error during pdf convert {task.params.filename}")
 
                 self.results_queue.sendMessage().message(
                     message.dict()
@@ -76,39 +80,35 @@ class QueueProcessor:
             return True
 
     def subscribe_to_tasks_queue(self):
-        while True:
-            try:
-                self.results_queue.createQueue().vt(120).exceptions(False).execute()
-                tasks_queue = RedisSMQ(
-                    host=self.config.redis_host,
-                    port=self.config.redis_port,
-                    qname=self.config.tasks_queue_name,
-                )
+        self.results_queue.createQueue().vt(120).exceptions(False).execute()
+        tasks_queue = RedisSMQ(
+            host=self.config.redis_host,
+            port=self.config.redis_port,
+            qname=self.config.tasks_queue_name,
+        )
 
-                tasks_queue.createQueue().vt(120).exceptions(
-                    False
-                ).execute()
+        tasks_queue.createQueue().vt(120).exceptions(
+            False
+        ).execute()
 
-                self.logger.info(
-                    f"Connecting to Redis: {self.config.redis_host}:{self.config.redis_port}"
-                )
-
-                redis_smq_consumer = RedisSMQConsumer(
-                    qname=self.config.tasks_queue_name,
-                    processor=self.process,
-                    host=self.config.redis_host,
-                    port=self.config.redis_port,
-                )
-                redis_smq_consumer.run()
-
-                self.logger.info(
-                    f"Connected to Redis."
-                )
-            except redis.exceptions.ConnectionError:
-                self.logger.error(
-                    f"Error connecting to Redis: {self.config.redis_host}:{self.config.redis_port}"
-                )
-                sleep(20)
+        self.logger.info(
+            f"Connecting to Redis: {self.config.redis_host}:{self.config.redis_port}"
+        )
+        try:
+            redis_smq_consumer = RedisSMQConsumer(
+                qname=self.config.tasks_queue_name,
+                processor=self.process,
+                host=self.config.redis_host,
+                port=self.config.redis_port,
+            )
+            self.logger.info(
+                f"Connected to Redis."
+            )
+            redis_smq_consumer.run()
+        except redis.exceptions.ConnectionError:
+            self.logger.error(
+                f"Error connecting to Redis: {self.config.redis_host}:{self.config.redis_port}"
+            )
 
 
 if __name__ == "__main__":

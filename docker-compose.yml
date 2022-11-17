@@ -37,6 +37,8 @@ services:
       - SENTRY_PDF_CONVERT_DSN=${SENTRY_PDF_CONVERT_DSN:-}
       - REDIS_HOST=${REDIS_HOST:-redis}
       - REDIS_PORT=${REDIS_PORT:-6379}
+      - SERVICE_HOST=${SERVICE_HOST:-http://127.0.0.1}
+      - SERVICE_PORT=${SERVICE_PORT:-5060}
 
   redis:
     image: "redis:5.0.14"

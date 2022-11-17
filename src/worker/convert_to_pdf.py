@@ -25,6 +25,7 @@ def convert_to_pdf(filename, namespace):
         namespace, filename
     )
     os.makedirs(f'/{processed_pdf_dir}', exist_ok=True)
+
     result = subprocess.run(
         [
             "libreoffice",
