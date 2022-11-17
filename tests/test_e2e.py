@@ -14,7 +14,7 @@ class EndToEnd(unittest.TestCase):
     def test_test(self):
         namespace = "documents"
         file_name = "file-sample_1MB.docx"
-        service_url = "http://127.0.0.1:5050"
+        service_url = "http://127.0.0.1:5060"
         file_path = f'{Path(__file__).parent.absolute()}/test_files/{file_name}'
 
         with open(file_path, "rb") as file:
