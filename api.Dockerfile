@@ -4,9 +4,9 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY src/api/requirements/base.txt base.txt
+COPY requirements/api.txt api.txt
 RUN pip install --upgrade pip
-RUN pip install -r base.txt
+RUN pip install -r api.txt
 
 RUN mkdir /app
 RUN mkdir /app/src
