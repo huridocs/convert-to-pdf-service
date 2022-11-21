@@ -1,14 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/src/api/requirements"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-  - package-ecosystem: "pip"
-    directory: "/src/worker/requirements"
+    directory: "/requirements"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
