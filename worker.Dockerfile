@@ -16,4 +16,4 @@ VOLUME /config
 
 FROM base AS worker
 WORKDIR /app/src
-CMD python QueueProcessor.py
+ENTRYPOINT python QueueProcessor.py
