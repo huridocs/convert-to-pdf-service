@@ -17,10 +17,10 @@ class DocumentFile:
         if not os.path.exists(source_folder):
             os.mkdir(source_folder)
 
-        if not os.path.exists(f'{source_folder}/{self.namespace}'):
-            os.mkdir(f'{source_folder}/{self.namespace}')
+        if not os.path.exists(f"{source_folder}/{self.namespace}"):
+            os.mkdir(f"{source_folder}/{self.namespace}")
 
-        path = f'{source_folder}/{self.namespace}/{document_file_name}'
+        path = f"{source_folder}/{self.namespace}/{document_file_name}"
 
         file_path_document = pathlib.Path(path)
         file_path_document.write_bytes(file)
