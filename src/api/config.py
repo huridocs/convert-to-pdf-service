@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 APP_PATH = Path(__file__).parent.absolute()
@@ -10,3 +11,13 @@ CONFIG = {
     "source_documents": DOCUMENT_SOURCES_PATH,
     "processed_pdfs": PDF_PROCESSED_PATH,
 }
+
+logging.root.handlers = []
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("debug.log"),
+        logging.StreamHandler()
+    ]
+)
