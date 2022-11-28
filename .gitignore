@@ -5,7 +5,6 @@
 .vscode
 *.log
 nohup.out
-config.py
 /service-venv/
 *.cache
 .env
