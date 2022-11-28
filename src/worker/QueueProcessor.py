@@ -23,8 +23,8 @@ SERVICE_URL = f"{os.environ.get('SERVICE_HOST')}:{os.environ.get('SERVICE_PORT')
 class QueueProcessor:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.redis_host = os.environ.get('REDIS_HOST')
-        self.redis_port = os.environ.get('REDIS_PORT')
+        self.redis_host = os.environ.get("REDIS_HOST")
+        self.redis_port = os.environ.get("REDIS_PORT")
         self.results_queue = RedisSMQ(
             host=self.redis_host,
             port=self.redis_port,
@@ -58,14 +58,14 @@ class QueueProcessor:
                 )
                 self.logger.error(f"Error during pdf convert {task.params.filename}")
 
-                self.results_queue.sendMessage().message(
-                    message.dict()
-                ).execute()
+                self.results_queue.sendMessage().message(message.dict()).execute()
                 self.logger.error(message.json())
                 return True
 
             file_name = "".join(task.params.filename.split(".")[:-1])
-            processed_pdf_url = f"{SERVICE_URL}/processed_pdf/{task.params.namespace}/{file_name}.pdf"
+            processed_pdf_url = (
+                f"{SERVICE_URL}/processed_pdf/{task.params.namespace}/{file_name}.pdf"
+            )
 
             message = Message(
                 tenant=task.params.namespace,
@@ -76,9 +76,7 @@ class QueueProcessor:
             )
 
             self.logger.info(message.json())
-            self.results_queue.sendMessage(delay=3).message(
-                message.dict()
-            ).execute()
+            self.results_queue.sendMessage(delay=3).message(message.dict()).execute()
             return True
         except Exception as exception:
             self.logger.exception(exception)
