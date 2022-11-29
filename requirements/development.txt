@@ -1,5 +1,5 @@
--r ../src/api/requirements.txt
--r ../src/worker/requirements.txt
+-r api.txt
+-r worker.txt
 
 flake8==6.0.0
 requests==2.28.1

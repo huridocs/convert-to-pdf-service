@@ -4,8 +4,9 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY ./src/api/requirements.txt requirements.txt
-RUN pip install --upgrade pip && pip install -r ./src/api/requirements.txt && pip install --no-cache-dir newrelic
+COPY ./requirements/api.txt api.txt
+COPY ./requirements/base.txt base.txt
+RUN pip install --upgrade pip && pip install -r api.txt && pip install --no-cache-dir newrelic
 
 RUN mkdir /app
 RUN mkdir /app/src
