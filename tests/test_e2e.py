@@ -21,6 +21,8 @@ class EndToEnd(unittest.TestCase):
             requests.post(f"{service_url}/upload/{namespace}", files=files)
 
         message = self.get_redis_message()
+        if message.get('error_message'):
+            self.fail(message)
         response = requests.get(message["file_url"])
 
         self.assertEqual(200, response.status_code)
