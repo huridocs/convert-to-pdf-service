@@ -1,3 +1,4 @@
+import logging
 import os
 
 import redis
@@ -7,22 +8,27 @@ from rsmq import RedisSMQ
 from sentry_sdk.integrations.redis import RedisIntegration
 import sentry_sdk
 
-from ServiceConfig import ServiceConfig
 from Message import Message
 
 from Task import Task
 from convert_to_pdf import convert_to_pdf
 
 
+SERVICE_NAME = "convert-to-pdf"
+RESULTS_QUEUE_NAME = f"{SERVICE_NAME}_results"
+TASKS_QUEUE_NAME = f"{SERVICE_NAME}_tasks"
+SERVICE_URL = f"{os.environ.get('SERVICE_HOST')}:{os.environ.get('SERVICE_PORT')}"
+
+
 class QueueProcessor:
     def __init__(self):
-        self.config = ServiceConfig()
-        self.logger = self.config.get_logger("queue_processor")
-
+        self.logger = logging.getLogger(__name__)
+        self.redis_host = os.environ.get("REDIS_HOST")
+        self.redis_port = os.environ.get("REDIS_PORT")
         self.results_queue = RedisSMQ(
-            host=self.config.redis_host,
-            port=self.config.redis_port,
-            qname=self.config.results_queue_name,
+            host=self.redis_host,
+            port=self.redis_port,
+            qname=RESULTS_QUEUE_NAME,
         )
 
     def process(self, id, message, rc, ts):
@@ -52,14 +58,14 @@ class QueueProcessor:
                 )
                 self.logger.error(f"Error during pdf convert {task.params.filename}")
 
-                self.results_queue.sendMessage().message(
-                    message.dict()
-                ).execute()
+                self.results_queue.sendMessage().message(message.dict()).execute()
                 self.logger.error(message.json())
                 return True
 
             file_name = "".join(task.params.filename.split(".")[:-1])
-            processed_pdf_url = f"{self.config.service_url}/processed_pdf/{task.params.namespace}/{file_name}.pdf"
+            processed_pdf_url = (
+                f"{SERVICE_URL}/processed_pdf/{task.params.namespace}/{file_name}.pdf"
+            )
 
             message = Message(
                 tenant=task.params.namespace,
@@ -70,39 +76,37 @@ class QueueProcessor:
             )
 
             self.logger.info(message.json())
-            self.results_queue.sendMessage(delay=3).message(
-                message.dict()
-            ).execute()
+            self.results_queue.sendMessage(delay=3).message(message.dict()).execute()
             return True
-        except Exception:
-            self.logger.error("error", exc_info=1)
+        except Exception as exception:
+            self.logger.exception(exception)
             return True
 
     def subscribe_to_tasks_queue(self):
         self.results_queue.createQueue().vt(120).exceptions(False).execute()
         tasks_queue = RedisSMQ(
-            host=self.config.redis_host,
-            port=self.config.redis_port,
-            qname=self.config.tasks_queue_name,
+            host=self.redis_host,
+            port=self.redis_port,
+            qname=TASKS_QUEUE_NAME,
         )
 
         tasks_queue.createQueue().vt(120).exceptions(False).execute()
 
-        self.logger.info(
-            f"Connecting to Redis: {self.config.redis_host}:{self.config.redis_port}"
-        )
         try:
-            redis_smq_consumer = RedisSMQConsumer(
-                qname=self.config.tasks_queue_name,
-                processor=self.process,
-                host=self.config.redis_host,
-                port=self.config.redis_port,
+            self.logger.info(
+                f"Connecting to Redis: {self.redis_host}:{self.redis_port}"
             )
-            self.logger.info("Connected to Redis.")
+            redis_smq_consumer = RedisSMQConsumer(
+                qname=TASKS_QUEUE_NAME,
+                processor=self.process,
+                host=self.redis_host,
+                port=self.redis_port,
+            )
             redis_smq_consumer.run()
+            self.logger.info("Connected to Redis.")
         except redis.exceptions.ConnectionError:
             self.logger.error(
-                f"Error connecting to Redis: {self.config.redis_host}:{self.config.redis_port}"
+                f"Error connecting to Redis: {self.redis_host}:{self.redis_port}"
             )
 
 

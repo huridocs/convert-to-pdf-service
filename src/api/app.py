@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-
 from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -9,11 +9,11 @@ from starlette.status import HTTP_202_ACCEPTED
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 import sentry_sdk
 
-from ServiceConfig import ServiceConfig
 from DocumentFile import DocumentFile
+from config import CONFIG
 
-config = ServiceConfig()
-logger = config.get_logger("api")
+logger = logging.getLogger(__name__)
+
 
 app = FastAPI()
 
@@ -34,12 +34,7 @@ except Exception:
 async def info():
     logger.info("Convert to PDF info endpoint")
 
-    content = jsonable_encoder(
-        {
-            "service:": "Convert to PDF API",
-            "sys": sys.version
-        }
-    )
+    content = jsonable_encoder({"service:": "Convert to PDF API", "sys": sys.version})
     return JSONResponse(content=content)
 
 
@@ -47,9 +42,7 @@ async def info():
 async def error():
     message = "This is a test error from the error endpoint"
     logger.error(message)
-    raise HTTPException(
-        status_code=500, detail=message
-    )
+    raise HTTPException(status_code=500, detail=message)
 
 
 @app.post("/upload/{namespace}", status_code=HTTP_202_ACCEPTED)
@@ -62,14 +55,16 @@ async def upload_document(namespace, file: UploadFile = File(...)):
         return "File uploaded"
     except Exception:
         message = f"Error uploading document {filename}"
-        logger.error(message, exc_info=1)
+        logger.exception(message)
         raise HTTPException(status_code=422, detail=message)
 
 
 @app.get("/processed_pdf/{namespace}/{pdf_file_name}", response_class=FileResponse)
-async def processed_pdf(namespace: str, pdf_file_name: str, background_tasks: BackgroundTasks):
+async def processed_pdf(
+    namespace: str, pdf_file_name: str, background_tasks: BackgroundTasks
+):
     try:
-        file_path = f'{config.paths["processed_pdfs"]}/{namespace}/{pdf_file_name}'
+        file_path = f'{CONFIG["processed_pdfs"]}/{namespace}/{pdf_file_name}'
         os.stat(file_path)
         background_tasks.add_task(os.remove, path=file_path)
         return FileResponse(
