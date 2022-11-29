@@ -4,9 +4,9 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY ./src/api/requirements.txt requirements.txt
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+COPY ./requirements/api.txt api.txt
+COPY ./requirements/base.txt base.txt
+RUN pip install --upgrade pip && pip install -r api.txt && pip install --no-cache-dir newrelic
 
 RUN mkdir /app
 RUN mkdir /app/src
@@ -19,4 +19,5 @@ FROM base AS api
 # USER python
 WORKDIR /app/src
 ENV FLASK_APP app.py
+
 CMD gunicorn -k uvicorn.workers.UvicornWorker app:app --bind 0.0.0.0:5050
