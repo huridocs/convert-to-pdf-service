@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Start enviroment
-        run: ./run start:testing -d
+        run: ./run start -d
       - name: Install venv
         run: ./run install_venv
       - name: Run tests

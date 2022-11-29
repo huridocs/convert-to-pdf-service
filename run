@@ -53,16 +53,8 @@ function start {
   docker-compose up --build "${@}"
 }
 
-function start:testing {
-  docker-compose -f docker-compose.yml --profile testing up --build "${@}"
-}
-
-function start:local {
-  docker-compose -f docker-compose.yml -f docker-compose.local.yml --profile testing up --build "${@}"
-}
-
 function stop {
-  docker-compose --profile testing stop
+  docker-compose stop
 }
 
 function help {
