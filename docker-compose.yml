@@ -2,6 +2,7 @@ version: "3"
 services:
   api:
     restart: unless-stopped
+    init: true
     depends_on:
       - redis
     build:
@@ -23,6 +24,7 @@ services:
 
   worker:
     restart: unless-stopped
+    init: true
     depends_on:
       - redis
     build:
@@ -35,7 +37,6 @@ services:
     networks:
       - convert-to-pdf
     volumes:
-      - ./config:/config
       - ./data:/app/data
     environment:
       - PUID=1000
