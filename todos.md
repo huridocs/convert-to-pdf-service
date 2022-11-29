@@ -3,7 +3,6 @@
 <!-- - all source code into src/ ? -->
 <!-- - linter ! -->
 <!-- - cleanup automaitcally for each tests -->
-<!-- - do not use tenants, WTF ? -->
 <!-- - review test files: do we want to include the "processed.pdf" in the commit? -->
 <!-- - combine docker-compose files (prod and testing) if possible -->
 <!-- - change names of packages if pertinent -->
