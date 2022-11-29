@@ -2,6 +2,8 @@ version: "3"
 services:
   api:
     restart: unless-stopped
+    depends_on:
+      - redis
     build:
       context: .
       dockerfile: api.Dockerfile
@@ -20,6 +22,8 @@ services:
 
   worker:
     restart: unless-stopped
+    depends_on:
+      - redis
     build:
       context: .
       dockerfile: worker.Dockerfile
@@ -41,7 +45,6 @@ services:
       - REDIS_PORT=${REDIS_PORT:-6379}
       - SERVICE_HOST=${SERVICE_HOST:-http://127.0.0.1}
       - SERVICE_PORT=${SERVICE_PORT:-5060}
-
   redis:
     image: "redis:5.0.14"
     restart: unless-stopped
@@ -52,8 +55,6 @@ services:
       - "6379:6379"
     environment:
       - REDIS_REPLICATION_MODE=master
-    profiles:
-      - testing
 
 networks:
   convert-to-pdf:
