@@ -23,8 +23,8 @@ SERVICE_URL = f"{os.environ.get('SERVICE_HOST')}:{os.environ.get('SERVICE_PORT')
 class QueueProcessor:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.redis_host = os.environ.get("REDIS_HOST")
-        self.redis_port = os.environ.get("REDIS_PORT")
+        self.redis_host = os.environ.get("REDIS_HOST", "localhost")
+        self.redis_port = os.environ.get("REDIS_PORT", "6739")
         self.results_queue = RedisSMQ(
             host=self.redis_host,
             port=self.redis_port,
@@ -50,7 +50,7 @@ class QueueProcessor:
 
             if not processed_pdf_filepath:
                 message = Message(
-                    tenant=task.params.namespace,
+                    namespace=task.params.namespace,
                     task=task.task,
                     params=task.params,
                     success=False,
@@ -68,7 +68,7 @@ class QueueProcessor:
             )
 
             message = Message(
-                tenant=task.params.namespace,
+                namespace=task.params.namespace,
                 task=task.task,
                 params=task.params,
                 success=True,

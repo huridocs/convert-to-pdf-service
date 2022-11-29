@@ -105,7 +105,7 @@ Python code: TODO: check python code!!!
 
     from rsmq import RedisSMQ
     queue = RedisSMQ(host=[redis host], port=[redis port], qname='ocr_tasks', quiet=True)
-    message_json = '{"tenant": "tenant_name", "task": "ocr", "params": {"filename": "pdf_file_name.pdf", "language": 'fr'}}'
+    message_json = '{"task": "ocr", "params": {"filename": "pdf_file_name.pdf", "language": 'fr'}}'
     queue.sendMessage().message(message_json).execute()
 
 3. Retrieve OCRed PDF
@@ -117,7 +117,7 @@ Upon completion of the OCR process, a message is placed in the `ocr_results` Red
 
     # The message.message contains the following information:
     # {
-    #   "tenant": "namespace",
+    #   "namespace": "namespace",
     #   "task": "pdf_name.pdf",
     #   "success": true,
     #   "error_message": "",
