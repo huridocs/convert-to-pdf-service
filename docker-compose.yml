@@ -7,6 +7,7 @@ services:
     build:
       context: .
       dockerfile: api.Dockerfile
+    container_name: convert-to-pdf-api
     networks:
       - convert-to-pdf
     volumes:
@@ -30,6 +31,7 @@ services:
       args:
         - VERSION=0.2.0
         - BUILD_DATE=2022-10-14
+    container_name: convert-to-pdf-worker
     networks:
       - convert-to-pdf
     volumes:
@@ -47,6 +49,7 @@ services:
       - SERVICE_PORT=${SERVICE_PORT:-5060}
   redis:
     image: "redis:5.0.14"
+    container_name: convert-to-pdf-redis
     restart: unless-stopped
     command: redis-server
     networks:

@@ -41,7 +41,7 @@ class EndToEnd(unittest.TestCase):
         )
 
         for _ in range(50):
-            time.sleep(1)
+            time.sleep(0.5)
             message = queue.receiveMessage().exceptions(False).execute()
             if message:
                 queue.deleteMessage(id=message["id"]).execute()

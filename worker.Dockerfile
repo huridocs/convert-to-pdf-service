@@ -15,10 +15,10 @@ RUN apt-get update && \
 	apt -y autoremove && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN mkdir /app
+RUN mkdir -p /app/data
 
 RUN addgroup --system python && adduser --system --group python
-RUN chown python:python /app
+RUN chown -R python:python /app
 USER python
 
 ENV VIRTUAL_ENV=/app/venv

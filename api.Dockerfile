@@ -1,8 +1,8 @@
 FROM python:3.10.8-slim
 
-RUN mkdir /app
+RUN mkdir -p /app/data
 RUN addgroup --system python && adduser --system --group python
-RUN chown python:python /app
+RUN chown -R python:python /app
 USER python
 
 ENV VIRTUAL_ENV=/app/venv
