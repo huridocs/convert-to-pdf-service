@@ -1,10 +1,12 @@
 import logging
 import os
 import sys
+import json
 from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from starlette.status import HTTP_202_ACCEPTED
+from rsmq import RedisSMQ
 
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 import sentry_sdk
@@ -18,6 +20,15 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 logger.info("Convert to PDF service has started")
+
+redis_host = os.environ.get("REDIS_HOST", "localhost")
+redis_port = os.environ.get("REDIS_PORT", "6739")
+
+queue = RedisSMQ(
+    host=redis_host,
+    port=redis_port,
+    qname="convert-to-pdf_tasks",
+)
 
 try:
     sentry_sdk.init(
@@ -52,6 +63,16 @@ async def upload_document(namespace, file: UploadFile = File(...)):
         filename = file.filename
         document_file = DocumentFile(namespace)
         document_file.save(document_file_name=filename, file=file.file.read())
+
+        queue.sendMessage().message(
+            json.dumps(
+                {
+                    "task": "convert-to-pdf",
+                    "params": {"filename": filename, "namespace": namespace},
+                }
+            )
+        ).execute()
+
         return "File uploaded"
     except Exception:
         message = f"Error uploading document {filename}"

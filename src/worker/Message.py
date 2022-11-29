@@ -3,9 +3,9 @@ from Params import Params
 
 
 class Message(BaseModel):
-    tenant: str
+    namespace: str
     task: str
     params: Params
     success: bool
-    error_message: str = None
-    file_url: str = None
+    error_message: str | None = None
+    file_url: str | None = None
