@@ -1,4 +1,4 @@
-FROM python:3.10.8-slim
+FROM python:3.10.8-bullseye
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -15,15 +15,15 @@ RUN apt-get update && \
 	apt -y autoremove && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /app/data
+RUN mkdir /app
 
-#RUN addgroup --system python && adduser --system python
-#RUN chown python:python /app
-#USER python
-#
-#ENV VIRTUAL_ENV=/app/venv
-#RUN python -m venv $VIRTUAL_ENV
-#ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+RUN addgroup --system python && adduser --system --group python
+RUN chown python:python /app
+USER python
+
+ENV VIRTUAL_ENV=/app/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 COPY ./requirements/worker.txt worker.txt
 COPY ./requirements/base.txt base.txt
@@ -31,8 +31,6 @@ COPY ./requirements/base.txt base.txt
 RUN pip install --upgrade pip && pip install -r worker.txt && pip install --no-cache-dir newrelic
 
 COPY ./src/worker /app
-VOLUME /config
-
 
 WORKDIR /app
 ENTRYPOINT python QueueProcessor.py
