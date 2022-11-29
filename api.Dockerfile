@@ -1,4 +1,4 @@
-FROM python:3.10.8-alpine AS base
+FROM python:3.10.8-alpine
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV
@@ -14,9 +14,6 @@ RUN mkdir /data
 WORKDIR /app
 COPY ./src/api ./src
 
-FROM base AS api
-# RUN addgroup -S python && adduser -S python -G python
-# USER python
 WORKDIR /app/src
 ENV FLASK_APP app.py
 

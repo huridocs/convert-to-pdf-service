@@ -1,4 +1,4 @@
-FROM linuxserver/libreoffice:7.2.7 AS base
+FROM linuxserver/libreoffice:7.2.7
 RUN apk --update add py3-pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
@@ -13,9 +13,7 @@ RUN mkdir -p /data
 WORKDIR /app
 COPY ./src/worker ./src
 
-# ports and volumes
 VOLUME /config
 
-FROM base AS worker
 WORKDIR /app/src
 ENTRYPOINT python QueueProcessor.py
