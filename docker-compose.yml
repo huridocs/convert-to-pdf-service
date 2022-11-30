@@ -1,13 +1,13 @@
-version: "3"
+version: "3.8"
 services:
   api:
     restart: unless-stopped
     init: true
+    entrypoint: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./api", "app:app", "--bind", "0.0.0.0:5050" ]
     depends_on:
       - redis
     build:
       context: .
-      dockerfile: api.Dockerfile
     container_name: convert-to-pdf-api
     networks:
       - convert-to-pdf
@@ -15,39 +15,22 @@ services:
       - data:/app/data
     ports:
       - "${SERVICE_PORT:-5060}:5050"
-    environment:
-      - SENTRY_PDF_CONVERT_DSN=${SENTRY_PDF_CONVERT_DSN:-}
-      - SERVICE_HOST=${SERVICE_HOST:-http://127.0.0.1}
-      - SERVICE_PORT=${SERVICE_PORT:-5060}
-      - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PORT=${REDIS_PORT:-6379}
+    env_file: .env
 
   worker:
     restart: unless-stopped
     init: true
+    entrypoint: [ "python", "./worker/QueueProcessor.py" ]
     depends_on:
       - redis
     build:
       context: .
-      dockerfile: worker.Dockerfile
-      args:
-        - VERSION=0.2.0
-        - BUILD_DATE=2022-10-14
     container_name: convert-to-pdf-worker
     networks:
       - convert-to-pdf
     volumes:
       - data:/app/data
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-      - S6_KEEP_ENV=1
-      - SENTRY_PDF_CONVERT_DSN=${SENTRY_PDF_CONVERT_DSN:-}
-      - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - SERVICE_HOST=${SERVICE_HOST:-http://127.0.0.1}
-      - SERVICE_PORT=${SERVICE_PORT:-5060}
+    env_file: .env
   redis:
     image: "redis:5.0.14"
     container_name: convert-to-pdf-redis

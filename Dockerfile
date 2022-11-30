@@ -25,12 +25,9 @@ ENV VIRTUAL_ENV=/app/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY ./requirements/worker.txt worker.txt
-COPY ./requirements/base.txt base.txt
+COPY ./requirements/requirements.txt requirements.txt
 
-RUN pip install --upgrade pip && pip install -r worker.txt && pip install --no-cache-dir newrelic
+RUN pip install --upgrade pip && pip install -r requirements.txt && pip install --no-cache-dir newrelic
 
-COPY ./src/worker /app
-
+COPY ./src /app
 WORKDIR /app
-ENTRYPOINT python QueueProcessor.py
