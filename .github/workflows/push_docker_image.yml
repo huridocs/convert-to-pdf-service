@@ -1,4 +1,4 @@
-name: Create and publish api Docker image
+name: Create and publish Docker image
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: huridocs/convert-to-pdf-api
+  IMAGE_NAME: huridocs/convert-to-pdf
 
 jobs:
   build-and-push-image:
@@ -46,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: api.Dockerfile
+          file: Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

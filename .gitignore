@@ -7,7 +7,6 @@
 nohup.out
 /service-venv/
 *.cache
-.env
 *_config.py
 config.yml
 config/*

@@ -12,7 +12,7 @@ RUN apt-get update && \
 		libreoffice-common \
 		openjdk-17-jre && \
 	apt-get -y -q remove libreoffice-gnome && \
-	apt -y autoremove && \
+	apt-get -y autoremove && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /app/data
@@ -25,12 +25,8 @@ ENV VIRTUAL_ENV=/app/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY ./requirements/worker.txt worker.txt
-COPY ./requirements/base.txt base.txt
-
-RUN pip install --upgrade pip && pip install -r worker.txt && pip install --no-cache-dir newrelic
-
-COPY ./src/worker /app
-
 WORKDIR /app
-ENTRYPOINT python QueueProcessor.py
+COPY ./requirements/requirements.txt requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r requirements.txt
+
+COPY ./src .
