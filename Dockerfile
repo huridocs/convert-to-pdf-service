@@ -12,7 +12,7 @@ RUN apt-get update && \
 		libreoffice-common \
 		openjdk-17-jre && \
 	apt-get -y -q remove libreoffice-gnome && \
-	apt -y autoremove && \
+	apt-get -y autoremove && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /app/data
@@ -25,9 +25,8 @@ ENV VIRTUAL_ENV=/app/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY ./requirements/requirements.txt requirements.txt
-
-RUN pip install --upgrade pip && pip install -r requirements.txt && pip install --no-cache-dir newrelic
-
-COPY ./src /app
 WORKDIR /app
+COPY ./requirements/requirements.txt requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r requirements.txt
+
+COPY ./src .
