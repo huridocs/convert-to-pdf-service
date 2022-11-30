@@ -1,12 +1,8 @@
 import os
 import shutil
-import pathlib
 import subprocess
 
 from config import CONFIG
-
-THIS_SCRIPT_PATH = pathlib.Path(__file__).parent.absolute()
-DATA_PATH = f"{THIS_SCRIPT_PATH}/../data"
 
 
 def get_paths(namespace: str, pdf_file_name: str):
@@ -34,6 +30,7 @@ def convert_to_pdf(filename, namespace):
         processed_pdf_filepath,
         failed_documents_filepath,
     ) = get_paths(namespace, filename)
+
     os.makedirs(f"/{processed_pdf_dir}", exist_ok=True)
 
     result = subprocess.run(

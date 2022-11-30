@@ -2,15 +2,17 @@ version: "3"
 services:
   api:
     restart: unless-stopped
+    init: true
     depends_on:
       - redis
     build:
       context: .
       dockerfile: api.Dockerfile
+    container_name: convert-to-pdf-api
     networks:
       - convert-to-pdf
     volumes:
-      - ./data:/app/data
+      - data:/app/data
     ports:
       - "${SERVICE_PORT:-5060}:5050"
     environment:
@@ -22,6 +24,7 @@ services:
 
   worker:
     restart: unless-stopped
+    init: true
     depends_on:
       - redis
     build:
@@ -30,11 +33,11 @@ services:
       args:
         - VERSION=0.2.0
         - BUILD_DATE=2022-10-14
+    container_name: convert-to-pdf-worker
     networks:
       - convert-to-pdf
     volumes:
-      - ./config:/config
-      - ./data:/app/data
+      - data:/app/data
     environment:
       - PUID=1000
       - PGID=1000
@@ -47,6 +50,7 @@ services:
       - SERVICE_PORT=${SERVICE_PORT:-5060}
   redis:
     image: "redis:5.0.14"
+    container_name: convert-to-pdf-redis
     restart: unless-stopped
     command: redis-server
     networks:
@@ -58,3 +62,6 @@ services:
 
 networks:
   convert-to-pdf:
+
+volumes:
+  data:

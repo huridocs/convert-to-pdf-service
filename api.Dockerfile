@@ -1,6 +1,11 @@
-FROM python:3.10.8-alpine
+FROM python:3.10.8-slim
 
-ENV VIRTUAL_ENV=/opt/venv
+RUN mkdir -p /app/data
+RUN addgroup --system python && adduser --system --group python
+RUN chown -R python:python /app
+USER python
+
+ENV VIRTUAL_ENV=/app/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
@@ -8,13 +13,8 @@ COPY ./requirements/api.txt api.txt
 COPY ./requirements/base.txt base.txt
 RUN pip install --upgrade pip && pip install -r api.txt && pip install --no-cache-dir newrelic
 
-RUN mkdir /app
-RUN mkdir /app/src
-RUN mkdir /data
-WORKDIR /app
-COPY ./src/api ./src
-
-WORKDIR /app/src
+COPY ./src/api /app
 ENV FLASK_APP app.py
 
+WORKDIR /app
 CMD gunicorn -k uvicorn.workers.UvicornWorker app:app --bind 0.0.0.0:5050
