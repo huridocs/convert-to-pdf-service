@@ -8,11 +8,8 @@ from rsmq import RedisSMQ
 from sentry_sdk.integrations.redis import RedisIntegration
 import sentry_sdk
 
-from Message import Message
-
-from Task import Task
-from convert_to_pdf import convert_to_pdf
-
+from .models import Message, Task
+from .convert_to_pdf import convert_to_pdf
 
 SERVICE_NAME = "convert-to-pdf"
 RESULTS_QUEUE_NAME = f"{SERVICE_NAME}_results"

@@ -3,7 +3,7 @@ services:
   api:
     restart: unless-stopped
     init: true
-    entrypoint: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./api", "app:app", "--bind", "0.0.0.0:5050" ]
+    entrypoint: [ "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--chdir", "./src/api", "app:app", "--bind", "0.0.0.0:5050" ]
     depends_on:
       - redis
     build:
@@ -20,7 +20,7 @@ services:
   worker:
     restart: unless-stopped
     init: true
-    entrypoint: [ "python", "./worker/QueueProcessor.py" ]
+    entrypoint: [ "python", "-m", "src.worker.queue_processor" ]
     depends_on:
       - redis
     build:

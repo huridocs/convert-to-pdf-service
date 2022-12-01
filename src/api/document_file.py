@@ -2,7 +2,7 @@ import os
 import pathlib
 from pathlib import Path
 
-from config import CONFIG
+from src.config import CONFIG
 
 
 class DocumentFile:

@@ -2,7 +2,7 @@ import os
 import shutil
 import subprocess
 
-from config import CONFIG
+from ..config import CONFIG
 
 
 def get_paths(namespace: str, pdf_file_name: str):
