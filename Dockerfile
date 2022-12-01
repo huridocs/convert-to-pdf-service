@@ -10,6 +10,12 @@ RUN apt-get update && \
 		libreoffice-java-common \
 		libreoffice-core \
 		libreoffice-common \
+    fonts-indic \
+    fonts-noto \
+    fonts-noto-cjk \
+    fonts-arabeyes \
+    fonts-kacst \
+    fonts-freefont-ttf \
 		openjdk-17-jre && \
 	apt-get -y -q remove libreoffice-gnome && \
 	apt-get -y autoremove && \
