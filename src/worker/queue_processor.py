@@ -27,6 +27,15 @@ class QueueProcessor:
             port=self.redis_port,
             qname=RESULTS_QUEUE_NAME,
         )
+        self.tasks_queue = RedisSMQ(host=self.redis_host, port=self.redis_port, qname=TASKS_QUEUE_NAME, )
+
+    def create_queues(self):
+        self.logger.info("Creating Redis queues")
+        try:
+            self.results_queue.createQueue().vt(120).exceptions(False).execute()
+            self.tasks_queue.createQueue().vt(120).exceptions(False).execute()
+        except Exception:
+            self.logger.exception("Error creating Redis queues")
 
     def process(self, id, message, rc, ts):
         try:
@@ -79,20 +88,8 @@ class QueueProcessor:
             self.logger.exception(exception)
             return True
 
-    def subscribe_to_tasks_queue(self):
-        self.results_queue.createQueue().vt(120).exceptions(False).execute()
-        tasks_queue = RedisSMQ(
-            host=self.redis_host,
-            port=self.redis_port,
-            qname=TASKS_QUEUE_NAME,
-        )
-
-        tasks_queue.createQueue().vt(120).exceptions(False).execute()
-
+    def run(self):
         try:
-            self.logger.info(
-                f"Connecting to Redis: {self.redis_host}:{self.redis_port}"
-            )
             redis_smq_consumer = RedisSMQConsumer(
                 qname=TASKS_QUEUE_NAME,
                 processor=self.process,
@@ -100,9 +97,8 @@ class QueueProcessor:
                 port=self.redis_port,
             )
             redis_smq_consumer.run()
-            self.logger.info("Connected to Redis.")
         except redis.exceptions.ConnectionError:
-            self.logger.error(
+            self.logger.exception(
                 f"Error connecting to Redis: {self.redis_host}:{self.redis_port}"
             )
 
@@ -119,4 +115,5 @@ if __name__ == "__main__":
         pass
 
     redis_tasks_processor = QueueProcessor()
-    redis_tasks_processor.subscribe_to_tasks_queue()
+    redis_tasks_processor.create_queues()
+    redis_tasks_processor.run()
