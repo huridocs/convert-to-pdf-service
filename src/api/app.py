@@ -12,7 +12,7 @@ from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 import sentry_sdk
 
 from DocumentFile import DocumentFile
-from config import CONFIG
+from src.config import CONFIG
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +95,6 @@ async def processed_pdf(
         )
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Processed PDF not found")
-    except Exception:
-        logger.error("Error", exc_info=1)
+    except Exception as exception:
+        logger.exception(exception)
         raise HTTPException(status_code=422)

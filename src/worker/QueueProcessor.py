@@ -7,8 +7,7 @@ from rsmq.consumer import RedisSMQConsumer
 from rsmq import RedisSMQ
 from sentry_sdk.integrations.redis import RedisIntegration
 import sentry_sdk
-
-from Message import Message
+from . import Message
 
 from Task import Task
 from convert_to_pdf import convert_to_pdf
