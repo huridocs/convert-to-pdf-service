@@ -37,7 +37,6 @@ class QueueProcessor:
         except Exception:
             self.logger.exception("Error creating Redis queues")
 
-
     def process(self, id, message, rc, ts):
         try:
             task = Task(**message)
