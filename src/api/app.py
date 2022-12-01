@@ -9,7 +9,6 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from starlette.status import HTTP_202_ACCEPTED
 from rsmq import RedisSMQ
 
-from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 import sentry_sdk
 
 from document_file import DocumentFile
