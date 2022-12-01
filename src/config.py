@@ -16,7 +16,6 @@ CONFIG = {
     "failed_documents": DOCUMENT_FAILED,
 }
 
-logging.root.handlers = []
 handlers = [logging.StreamHandler()]
 if GRAYLOG_IP:
     handlers.append(graypy.GELFUDPHandler(
