@@ -5,6 +5,7 @@ import redis
 from pydantic import ValidationError
 from rsmq.consumer import RedisSMQConsumer
 from rsmq import RedisSMQ
+from sentry_sdk import start_transaction
 from sentry_sdk.integrations.redis import RedisIntegration
 import sentry_sdk
 
@@ -38,55 +39,56 @@ class QueueProcessor:
             self.logger.exception("Error creating Redis queues")
 
     def process(self, id, message, rc, ts):
-        try:
-            task = Task(**message)
-        except ValidationError:
-            self.logger.error(f"Not a valid message: {message}")
-            return True
+        with start_transaction(op="task", name='convert_to_pdf'):
+            try:
+                task = Task(**message)
+            except ValidationError:
+                self.logger.error(f"Not a valid message: {message}")
+                return True
 
-        self.logger.info(f"Valid message: {message}")
+            self.logger.info(f"Valid message: {message}")
 
-        try:
-            self.logger.info(f"Converting to PDF {task.params.filename}")
-            processed_pdf_filepath = convert_to_pdf(
-                task.params.filename, task.params.namespace
-            )
+            try:
+                self.logger.info(f"Converting to PDF {task.params.filename}")
+                processed_pdf_filepath = convert_to_pdf(
+                    task.params.filename, task.params.namespace
+                )
 
-            self.logger.info(f"Converted to PDF {task.params.filename}")
+                self.logger.info(f"Converted to PDF {task.params.filename}")
 
-            if not processed_pdf_filepath:
+                if not processed_pdf_filepath:
+                    message = Message(
+                        namespace=task.params.namespace,
+                        task=task.task,
+                        params=task.params,
+                        success=False,
+                        error_message="Error during pdf convert",
+                    )
+                    self.logger.error(f"Error during pdf convert {task.params.filename}")
+
+                    self.results_queue.sendMessage().message(message.dict()).execute()
+                    self.logger.error(message.json())
+                    return True
+
+                file_name = "".join(task.params.filename.split(".")[:-1])
+                processed_pdf_url = (
+                    f"{SERVICE_URL}/processed_pdf/{task.params.namespace}/{file_name}.pdf"
+                )
+
                 message = Message(
                     namespace=task.params.namespace,
                     task=task.task,
                     params=task.params,
-                    success=False,
-                    error_message="Error during pdf convert",
+                    success=True,
+                    file_url=processed_pdf_url,
                 )
-                self.logger.error(f"Error during pdf convert {task.params.filename}")
 
-                self.results_queue.sendMessage().message(message.dict()).execute()
-                self.logger.error(message.json())
+                self.logger.info(message.json())
+                self.results_queue.sendMessage(delay=3).message(message.dict()).execute()
                 return True
-
-            file_name = "".join(task.params.filename.split(".")[:-1])
-            processed_pdf_url = (
-                f"{SERVICE_URL}/processed_pdf/{task.params.namespace}/{file_name}.pdf"
-            )
-
-            message = Message(
-                namespace=task.params.namespace,
-                task=task.task,
-                params=task.params,
-                success=True,
-                file_url=processed_pdf_url,
-            )
-
-            self.logger.info(message.json())
-            self.results_queue.sendMessage(delay=3).message(message.dict()).execute()
-            return True
-        except Exception as exception:
-            self.logger.exception(exception)
-            return True
+            except Exception as exception:
+                self.logger.exception(exception)
+                return True
 
     def run(self):
         try:
@@ -106,9 +108,9 @@ class QueueProcessor:
 if __name__ == "__main__":
     try:
         sentry_sdk.init(
-            os.environ.get("SENTRY_PDF_CONVERT_DSN"),
+            os.environ.get("SENTRY_CONVERT_TO_PDF_DSN"),
             traces_sample_rate=0.1,
-            environment=os.environ.get("ENVIRONMENT", "production"),
+            environment=os.environ.get("ENVIRONMENT", "development"),
             integrations=[RedisIntegration()],
         )
     except Exception:

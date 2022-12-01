@@ -5,6 +5,7 @@ import json
 from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.encoders import jsonable_encoder
+from sentry_sdk.integrations.redis import RedisIntegration
 from starlette.status import HTTP_202_ACCEPTED
 from rsmq import RedisSMQ
 
@@ -32,11 +33,11 @@ queue = RedisSMQ(
 
 try:
     sentry_sdk.init(
-        os.environ.get("SENTRY_OCR_DSN"),
+        os.environ.get("SENTRY_CONVERT_TO_PDF_DSN"),
         traces_sample_rate=0.1,
         environment=os.environ.get("ENVIRONMENT", "development"),
+        integrations=[RedisIntegration()],
     )
-    app.add_middleware(SentryAsgiMiddleware)
 except Exception:
     pass
 
