@@ -11,7 +11,7 @@ from rsmq import RedisSMQ
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 import sentry_sdk
 
-from DocumentFile import DocumentFile
+from document_file import DocumentFile
 from src.config import CONFIG
 
 logger = logging.getLogger(__name__)

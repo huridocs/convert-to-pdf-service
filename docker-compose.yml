@@ -20,7 +20,7 @@ services:
   worker:
     restart: unless-stopped
     init: true
-    entrypoint: [ "python", "-m", "src.worker.QueueProcessor" ]
+    entrypoint: [ "python", "-m", "src.worker.queue_processor" ]
     depends_on:
       - redis
     build:

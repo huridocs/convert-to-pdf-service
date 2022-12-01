@@ -1,5 +1,14 @@
 from pydantic import BaseModel
-from Params import Params
+
+
+class Params(BaseModel):
+    filename: str
+    namespace: str
+
+
+class Task(BaseModel):
+    task: str
+    params: Params
 
 
 class Message(BaseModel):
