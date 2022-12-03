@@ -1,6 +1,6 @@
-# OCR PDFs
+# Convert documents to PDF
 
-A Docker-powered service for OCRing PDFs
+A Docker-powered service for converting files supported by Libreoffice to PDF.
 
 ---
 
@@ -21,57 +21,31 @@ This script will start the service with default configurations.
 
 Default configuration values are as follows:
 
-Redis host URL: localhost
-Redis PORT: 6379
-Service host URL: 127.0.0.1
-Service PORT: 5050
-
-You can override default values with the followgin environment variables:
-
 ```
-REDIS_HOST
-REDIS_PORT
-SERVICE_HOST
-SERVICE_PORT
-```
-
-LEGACY
-
-For backwards compatibility, you can override default values with the file `./src/config.yml` which you need to create. This is for legacy compatibility only.
-You should use the environment values described above to personalize the values. Environemnt values will take precedence over the file configurations.
-
-The config file should include the following keys (shown with default values):
-
-```
-redis_host: localhost
-redis_port: 6379
-service_host: localhost
-service_port: 5050
+REDIS_HOST=localhost
+REDIS_PORT=6379
+SERVICE_HOST=127.0.0.1
+SERVICE_PORT=5060
 ```
 
 ## Development and testing
 
-A virtual env is needed for some of the development tasks
+A Python virtual env is needed for some of the development tasks
 
     ./run install_venv
 
 Start the service for testing (with a redis server included)
 
-    ./run start:testing
+    ./run start
 
 Check service is up and get general info on supported languages and other important information:
 
-    curl localhost:5050/info
+    curl localhost:5060/info
 
-Test OCR is working (basic sync method)
+Test converting to PDF is working
 
-curl -X POST -F 'file=@./src/test_files/sample-english.pdf' localhost:5051 --output english.pdf
+curl -X POST -F 'file=@./src/test_files/sample-english.pdf' localhost:5060 --output english.pdf
 
-If language is not specified, english will be used by default. In order to specify a language for better OCR results:
-
-    curl -X POST -F 'language=fr' -F 'file=@./src/test_files/sample-french.pdf' localhost:5050 --output french.pdf
-
-Remember you can check supported languages on `localhost:5050/info`
 
 To list all available commands just run `./run`, some useful commands:
 
@@ -91,24 +65,15 @@ To list all available commands just run `./run`, some useful commands:
 
 ## Asynchronous OCR
 
-1. Upload PDF file to the OCR service
+1. Upload the file to the service
 
-   curl -X POST -F 'file=@/PATH/TO/PDF/pdf_name.pdf' localhost:5051/upload/[namespace]
+   curl -X POST -F 'file=@/PATH/TO/PDF/pdf_name.pdf' localhost:5060/upload/[namespace]
 
 ![Alt logo](readme_pictures/send_materials.png?raw=true "Send PDF to extract")
 
-2. Add OCR task to queue
+The enpoint sends a message to the Redis queue to be processed asynchronously by the worker
 
-To add an OCR task to queue, a message should be sent to a `ocr_tasks` Redis queue. Params should include filename and, optionally, a supported language.
-
-Python code: TODO: check python code!!!
-
-    from rsmq import RedisSMQ
-    queue = RedisSMQ(host=[redis host], port=[redis port], qname='ocr_tasks', quiet=True)
-    message_json = '{"task": "ocr", "params": {"filename": "pdf_file_name.pdf", "language": 'fr'}}'
-    queue.sendMessage().message(message_json).execute()
-
-3. Retrieve OCRed PDF
+2. Retrieve converted PDF
 
 Upon completion of the OCR process, a message is placed in the `ocr_results` Redis queue. This response is, for now, using specific Uwazi terminology. To check if the process for a specific file has been completed:
 
@@ -129,31 +94,12 @@ Upon completion of the OCR process, a message is placed in the `ocr_results` Red
 
 ## HTTP server
 
-The container `HTTP server` is coded using Python 3.9 and uses the [FastApi](https://fastapi.tiangolo.com/) web framework.
+The container `HTTP server` is coded using Python 3.10 and uses the [FastApi](https://fastapi.tiangolo.com/) web framework.
 
-If the service is running, the end point definitions can be founded in the following url:
-
-    http://localhost:5050/docs
-
-The endpoints code can be found inside the file `./src/app.py`.
-
-The errors are logged in file `./data/service.log`.
+The endpoints code can be found inside the file `./src/api/app.py`.
 
 ## Queue processor
 
-The container `Queue processor` is coded using Python 3.9, and it is in charge of communications with the Redis queue.
+The container `Queue processor` is coded using Python 3.10, and it is in charge of communications with the Redis queue.
 
-The code can be found in the file `./src/QueueProcessor.py` and it uses the library `RedisSMQ` to interact with the Redis queues.
-
-## Troubleshooting
-
-In MacOS, the following `config.yml` can be used in order to access Redis in the host's localhost:
-
-    redis_host: host.docker.internal
-    redis_port: 6379
-    service_host: localhost
-    service_port: 5050
-
-### Issue: Error downloading pip wheel
-
-Solution: Change RAM memory available to the docker containers to 3Gb or 4Gb
+The code can be found in the file `./src/worker/queue_processor.py` and it uses the library `RedisSMQ` to interact with the Redis queues.
