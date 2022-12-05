@@ -4,12 +4,15 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && \
 	apt-get -y -q --no-install-recommends install \
-		libreoffice \
-		libreoffice-writer \
-		ure \
-		libreoffice-java-common \
-		libreoffice-core \
-		libreoffice-common \
+    wget \
+    cabextract \
+    xfonts-utils \
+    libreoffice \
+    libreoffice-writer \
+    ure \
+    libreoffice-java-common \
+    libreoffice-core \
+    libreoffice-common \
     fonts-indic \
     fonts-noto \
     fonts-noto-cjk \
@@ -20,6 +23,11 @@ RUN apt-get update && \
 	apt-get -y -q remove libreoffice-gnome && \
 	apt-get -y autoremove && \
 	rm -rf /var/lib/apt/lists/*
+
+RUN wget http://ftp.br.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.8_all.deb && \
+    apt --fix-broken install -y ./ttf-mscorefonts-installer_3.8_all.deb && \
+    rm ttf-mscorefonts-installer_3.8_all.deb && \
+    fc-cache -f -v
 
 RUN mkdir -p /app/data
 
