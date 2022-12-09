@@ -72,7 +72,6 @@ class TestEndToEnd(unittest.TestCase):
         except FileNotSupported:
             self.fail("FileNotSupported raised unexpectedly")
 
-
     @staticmethod
     def get_redis_message():
         queue = RedisSMQ(
