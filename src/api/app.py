@@ -11,6 +11,7 @@ from rsmq import RedisSMQ
 
 import sentry_sdk
 
+from supported_files import check_file_support, FileNotSupported
 from document_file import DocumentFile
 from src.config import CONFIG
 
@@ -61,6 +62,7 @@ async def upload_document(namespace, file: UploadFile = File(...)):
     filename = "No file name"
     try:
         filename = file.filename
+        check_file_support(filename)
         document_file = DocumentFile(namespace)
         document_file.save(document_file_name=filename, file=file.file.read())
 
@@ -74,7 +76,7 @@ async def upload_document(namespace, file: UploadFile = File(...)):
         ).execute()
 
         return "File uploaded"
-    except Exception:
+    except FileNotSupported:
         message = f"Error uploading document {filename}"
         logger.exception(message)
         raise HTTPException(status_code=422, detail=message)
