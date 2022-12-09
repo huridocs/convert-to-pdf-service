@@ -7,8 +7,6 @@ from src.config import CONFIG
 
 class DocumentFile:
     def __init__(self, namespace: str):
-        path = Path(os.path.dirname(os.path.realpath(__file__)))
-        self.root_folder = path.parent.absolute()
         self.namespace = namespace
 
     def save(self, document_file_name: str, file: bytes):
