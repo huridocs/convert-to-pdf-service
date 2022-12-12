@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 import json
-from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks
+from fastapi import FastAPI, HTTPException, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -11,11 +11,11 @@ from rsmq import RedisSMQ
 
 import sentry_sdk
 
+from supported_files import check_file_support, FileNotSupported
 from document_file import DocumentFile
 from src.config import CONFIG
 
 logger = logging.getLogger(__name__)
-
 
 app = FastAPI()
 
@@ -57,32 +57,31 @@ async def error():
 
 
 @app.post("/upload/{namespace}", status_code=HTTP_202_ACCEPTED)
-async def upload_document(namespace, file: UploadFile = File(...)):
-    filename = "No file name"
+async def upload_document(namespace: str, file: UploadFile):
     try:
-        filename = file.filename
-        document_file = DocumentFile(namespace)
-        document_file.save(document_file_name=filename, file=file.file.read())
+        check_file_support(file.filename)
+        document_file = DocumentFile()
+        document_file.save(file, namespace)
 
         queue.sendMessage().message(
             json.dumps(
                 {
                     "task": "convert-to-pdf",
-                    "params": {"filename": filename, "namespace": namespace},
+                    "params": {"filename": file.filename, "namespace": namespace},
                 }
             )
         ).execute()
 
         return "File uploaded"
-    except Exception:
-        message = f"Error uploading document {filename}"
+    except FileNotSupported:
+        message = f"Error uploading document {file.filename}"
         logger.exception(message)
         raise HTTPException(status_code=422, detail=message)
 
 
 @app.get("/processed_pdf/{namespace}/{pdf_file_name}", response_class=FileResponse)
 async def processed_pdf(
-    namespace: str, pdf_file_name: str, background_tasks: BackgroundTasks
+        namespace: str, pdf_file_name: str, background_tasks: BackgroundTasks
 ):
     try:
         file_path = f'{CONFIG["processed_pdfs"]}/{namespace}/{pdf_file_name}'
@@ -95,6 +94,3 @@ async def processed_pdf(
         )
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Processed PDF not found")
-    except Exception as exception:
-        logger.exception(exception)
-        raise HTTPException(status_code=422)
