@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 import json
-from fastapi import FastAPI, HTTPException, UploadFile, BackgroundTasks
+from fastapi import File, FastAPI, HTTPException, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from sentry_sdk.integrations.redis import RedisIntegration
@@ -45,7 +45,8 @@ except Exception:
 async def info():
     logger.info("Convert to PDF info endpoint")
 
-    content = jsonable_encoder({"service:": "Convert to PDF API", "sys": sys.version})
+    content = jsonable_encoder(
+        {"service:": "Convert to PDF API", "sys": sys.version})
     return JSONResponse(content=content)
 
 
@@ -57,8 +58,9 @@ async def error():
 
 
 @app.post("/upload/{namespace}", status_code=HTTP_202_ACCEPTED)
-async def upload_document(namespace: str, file: UploadFile):
+async def upload_document(namespace, file: UploadFile = File(...)):
     try:
+        logger.info(f'Saving file {file.filename} for namespace {namespace}')
         check_file_support(file.filename)
         document_file = DocumentFile()
         document_file.save(file, namespace)
@@ -74,9 +76,10 @@ async def upload_document(namespace: str, file: UploadFile):
 
         return "File uploaded"
     except FileNotSupported:
-        message = f"Error uploading document {file.filename}"
-        logger.exception(message)
-        raise HTTPException(status_code=422, detail=message)
+        detail = {"message": f"Mime type not supported, error uploading document {file.filename}",
+                  "code": "FileNotSupported"}
+        logger.exception(detail)
+        raise HTTPException(status_code=422, detail=detail)
 
 
 @app.get("/processed_pdf/{namespace}/{pdf_file_name}", response_class=FileResponse)
