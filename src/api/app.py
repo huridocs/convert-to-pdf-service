@@ -94,6 +94,3 @@ async def processed_pdf(
         )
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Processed PDF not found")
-    except Exception as exception:
-        logger.exception(exception)
-        raise HTTPException(status_code=422)
