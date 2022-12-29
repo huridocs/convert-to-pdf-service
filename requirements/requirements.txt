@@ -1,5 +1,5 @@
 redis==4.4.0
-pydantic==1.10.2
+pydantic==1.10.3
 sentry-sdk==1.11.1
 PyRSMQ==0.4.5
 graypy==2.1.0
