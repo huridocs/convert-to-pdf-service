@@ -33,4 +33,6 @@ class FileNotSupported(Exception):
 def check_file_support(filename: str):
     mimetype, _ = mimetypes.guess_type(filename)
     if mimetype not in MIMETYPES:
-        raise FileNotSupported(f"File not supported for file {filename} and mimetype {mimetype}")
+        raise FileNotSupported(
+            f"File not supported for file {filename} and mimetype {mimetype}"
+        )

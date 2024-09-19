@@ -81,7 +81,7 @@ async def upload_document(namespace: str, file: UploadFile):
 
 @app.get("/processed_pdf/{namespace}/{pdf_file_name}", response_class=FileResponse)
 async def processed_pdf(
-        namespace: str, pdf_file_name: str, background_tasks: BackgroundTasks
+    namespace: str, pdf_file_name: str, background_tasks: BackgroundTasks
 ):
     try:
         file_path = f'{CONFIG["processed_pdfs"]}/{namespace}/{pdf_file_name}'

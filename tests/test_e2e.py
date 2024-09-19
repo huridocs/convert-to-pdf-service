@@ -25,7 +25,7 @@ class TestEndToEnd(unittest.TestCase):
             requests.post(f"{service_url}/upload/{namespace}", files=files)
 
         message = self.get_redis_message()
-        if message.get('error_message'):
+        if message.get("error_message"):
             self.fail(message)
         response = requests.get(message["file_url"])
 
@@ -34,7 +34,7 @@ class TestEndToEnd(unittest.TestCase):
         pdf = PdfReader(io.BytesIO(response.content))
         text = pdf.pages[0].extract_text()
 
-        self.assertEqual(message['namespace'], 'tenant-name')
+        self.assertEqual(message["namespace"], "tenant-name")
         self.assertIsNotNone(pdf)
         self.assertIn("Lorem ipsum", text)
 
@@ -50,22 +50,24 @@ class TestEndToEnd(unittest.TestCase):
 
         self.assertEqual(422, response.status_code)
 
-    @parameterized.expand([
-        ["csv"],
-        ["txt"],
-        ["doc"],
-        ["docx"],
-        ["csv"],
-        ["html"],
-        ["odt"],
-        ["epub"],
-        ["xls"],
-        ["xlsx"],
-        ["ods"],
-        ["ppt"],
-        ["pptx"],
-        ["odt"],
-    ])
+    @parameterized.expand(
+        [
+            ["csv"],
+            ["txt"],
+            ["doc"],
+            ["docx"],
+            ["csv"],
+            ["html"],
+            ["odt"],
+            ["epub"],
+            ["xls"],
+            ["xlsx"],
+            ["ods"],
+            ["ppt"],
+            ["pptx"],
+            ["odt"],
+        ]
+    )
     def test_allowed_mimetypes(self, extension):
         try:
             check_file_support(f"filename.{extension}")
@@ -85,7 +87,7 @@ class TestEndToEnd(unittest.TestCase):
                 queue.deleteMessage(id=message["id"]).execute()
                 return json.loads(message["message"])
 
-        return json.loads('{}')
+        return json.loads("{}")
 
 
 if __name__ == "__main__":
