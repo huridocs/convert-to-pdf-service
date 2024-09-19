@@ -42,19 +42,19 @@ function linter {
 }
 
 function remove_docker_containers {
-  docker-compose ps -q | xargs docker rm
+  docker compose ps -q | xargs docker rm
 }
 
 function remove_docker_images {
-  docker-compose config --images | xargs docker rmi
+  docker compose config --images | xargs docker rmi
 }
 
 function start {
-  docker-compose up --build "${@}"
+  docker compose up --build "${@}"
 }
 
 function stop {
-  docker-compose stop
+  docker compose stop
 }
 
 function help {
